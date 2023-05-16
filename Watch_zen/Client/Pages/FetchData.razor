@@ -1,0 +1,170 @@
+﻿@page "/fetchdata"
+@using System.Net
+@using Watch_zen.Shared.Models
+@inject HttpClient Http
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Product Information</h1>
+
+
+
+<h1>Sign Up</h1>
+
+<form>
+        <table class="form-group">
+            <tr>
+               @* 
+                <td>
+                    <label for="id" class="control-label">id</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Use only for edit and delete" @bind="@p.Id" />
+                </td>
+                <td width="20"> </td>*@
+                <td>
+                    <label for="Name" class="control-label">Name</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" @bind="@p.Name" />
+                </td>
+                <td width="20"> </td>
+                <td>
+                    <label for="Name" class="control-label">Category</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" @bind="@p.Category" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Email" class="control-label">Color</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" @bind="@p.Color" />
+                </td>
+                <td width="20"> </td>
+                <td>
+                    <label for="Name" class="control-label">Price</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" @bind="@p.Price" />
+                </td>
+            </tr>
+            <tr>
+                <td width="20"> </td>
+                <td></td>
+                <td>
+                    <button type="submit" class="btn btn-success" @onclick="@Savedata" style="width:220px;">Save</button>
+                    <td><button class="btn btn-primary" @onclick="@(async () => UpdateData())" style="width:110px;">Edit</button></td>
+                    <td><button class="btn btn-danger" @onclick="@(async () => DeleteData())">Delete</button></td>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+
+
+
+
+@if (info == null)
+{
+    <p>Click the button</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Color</th>
+                <th>Price</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var data in info )
+            {
+                <tr>
+                    <td>@data.Id</td>
+                    <td>@data.Name</td>
+                    <td>@data.Category</td>
+                    <td>@data.Color</td>
+                    <td>@data.Price</td>
+                  
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    ProductInfo[]? info;
+
+    ProductInfo p = new ProductInfo();
+
+     protected override async Task OnInitializedAsync()
+    {
+        info = await Http.GetFromJsonAsync<ProductInfo[]>("api/product");
+    }
+
+    async void GetInfo()
+    {
+        info = await Http.GetFromJsonAsync<ProductInfo[]>("api/product");
+        StateHasChanged();
+    }
+
+
+    async void Savedata()
+    {
+        
+        var response = await Http.PostAsJsonAsync("api/product", p);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Sign-up successful
+            // Do something, such as navigate to a different page
+        }
+        else if (response.StatusCode == HttpStatusCode.Conflict)
+        {
+                
+            // Email address already in use
+            // Display an error message to the user
+        }
+        else
+        {
+            
+        }
+    }
+    async void UpdateData()
+    {
+        var response = await Http.PutAsJsonAsync($"api/product/{p.Id}", p);
+        if (response.IsSuccessStatusCode)
+        {
+             
+            // Update successful
+            // Do something, such as display a success message to the user
+        }
+        else
+        {
+            // Update failed for some reason
+            // Display an error message to the user
+        }
+    }
+    async void DeleteData()
+    {
+        var response = await Http.DeleteAsync($"api/product/{p.Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            // Deletion successful
+            // Do something, such as display a success message to the user
+        }
+        else
+        {
+            
+        }
+    }
+
+}
